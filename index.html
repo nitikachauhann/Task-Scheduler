@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📝 Task Scheduler</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-light: linear-gradient(to bottom right, #fff7f0, #ffeefc);
+      --bg-dark: linear-gradient(to bottom right, #2a2a40, #1c1c2e);
+      --bg-aesthetic: linear-gradient(to bottom right, #f5e1fd, #cce5ff);
+      --text-light: #333;
+      --text-dark: #f0f0ff;
+    }
+
+    body {
+      font-family: 'Comic Neue', cursive;
+      background: var(--bg-light);
+      color: var(--text-light);
+      margin: 0;
+      padding: 20px;
+      transition: all 0.4s ease;
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    body.aesthetic {
+      background: var(--bg-aesthetic);
+    }
+
+    h1 {
+      text-align: center;
+      color: #ff6b81;
+      font-size: 2.5rem;
+    }
+
+    .container {
+      max-width: 750px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    #mascot {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: 100px;
+    }
+
+    #theme-switcher {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    #theme-switcher select {
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 2px solid #ffe0ea;
+      font-size: 1em;
+    }
+
+    form, .section {
+      background: #fff;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(255, 192, 203, 0.2);
+      margin-bottom: 30px;
+    }
+
+    body.dark form, body.dark .section {
+      background: #34344e;
+      box-shadow: 0 4px 20px rgba(180, 170, 255, 0.3);
+    }
+
+    form label {
+      font-weight: bold;
+      margin-top: 12px;
+      display: block;
+      color: #cc5c7b;
+    }
+
+    input, select, button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      border: 2px solid #ffe0ea;
+      border-radius: 15px;
+      box-sizing: border-box;
+      font-size: 1em;
+      background: #fffafc;
+    }
+
+    .time-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .time-group input {
+      width: 100%;
+    }
+
+    button {
+      background: #ff8ba7;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #f26a8d;
+    }
+
+    .section h2 {
+      color: #ff6b81;
+      font-size: 1.6rem;
+      margin-top: 0;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+  margin: 10px 0;
+  padding: 12px 16px;
+  border-radius: 15px;
+  background: #fff0f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 90%; /* narrower box */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.task-info {
+  flex: 1;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.task-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.task-buttons button {
+  padding: 6px 10px;
+  font-size: 0.85em;
+  border-radius: 10px;
+  border: none;
+}
+
+.btn-done {
+  background: #d4fdd4;
+  color: #2b7a2b;
+}
+
+.btn-delete {
+  background: #ffd1dc;
+  color: #a33a4a;
+}
+
+
+    #response {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #ff6b81;
+      text-align: center;
+    }
+
+    #motivation {
+      text-align: center;
+      font-size: 1.1em;
+      margin-top: -15px;
+      color: #7a8dff;
+    }
+
+
+
+  </style>
+</head>
+<body>
+<!-- rest of your HTML remains unchanged -->
+
+  <h1>📝 Task Scheduler</h1>
+  <div class="container">
+    <div id="theme-switcher">
+      <select id="theme-select">
+        <option value="light">🌞 Light</option>
+        <option value="dark">🌙 Dark</option>
+        <option value="aesthetic">🌈 Aesthetic</option>
+      </select>
+    </div>
+
+    <form id="task-form">
+      <label for="name">Task Name</label>
+      <input type="text" id="name" placeholder="e.g., Complete assignment" required>
+
+      <label>Estimated Time</label>
+      <div class="time-group">
+        <input type="number" id="estimated_time_hrs" placeholder="Hours" required>
+        <input type="number" id="estimated_time_mins" placeholder="Minutes" required>
+      </div>
+
+      <label for="status">Status</label>
+      <select id="status">
+        <option>Begin</option>
+        <option>Working</option>
+      </select>
+
+      <label for="priority">Priority</label>
+      <select id="priority">
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+      </select>
+
+      <button type="submit">Add Task</button>
+      <p id="response"></p>
+    </form>
+
+    <div style="margin-bottom: 20px;">
+        <label for="sort-select"><strong>Sort Tasks By:</strong></label>
+        <select id="sort-select" onchange="loadTasks()">
+          <option value="auto">Auto (DFS)</option>
+          <option value="estimated_time">Estimated Time</option>
+          <option value="priority">Priority</option>
+        </select>
+      </div>
+      
+
+    <div class="section">
+      <h2>📋 Active Tasks</h2>
+      <ul id="task-list"></ul>
+    </div>
+
+    <div class="section">
+      <h2>✅ Completed Tasks</h2>
+      <ul id="done-list"></ul>
+      <p id="motivation"></p>
+    </div>
+  </div>
+
+  
+
+
+
+  <script>
+    const themes = {
+      light: "light",
+      dark: "dark",
+      aesthetic: "aesthetic"
+    };
+
+    document.getElementById("theme-select").addEventListener("change", function () {
+      document.body.className = "";
+      document.body.classList.add(this.value);
+    });
+
+    document.getElementById("task-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const hours = parseInt(document.getElementById("estimated_time_hrs").value) || 0;
+      const minutes = parseInt(document.getElementById("estimated_time_mins").value) || 0;
+      const totalMinutes = hours * 60 + minutes;
+
+      const task = {
+        name: document.getElementById("name").value,
+        estimated_time: totalMinutes,
+        status: document.getElementById("status").value,
+        priority: document.getElementById("priority").value,
+      };
+
+      try {
+        const res = await fetch("http://localhost:3000/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(task),
+        });
+
+        const result = await res.json();
+        document.getElementById("response").innerText = result.message || "Task added!";
+        document.getElementById("task-form").reset();
+        loadTasks();
+      } catch {
+        document.getElementById("response").innerText = "❌ Failed to add task.";
+      }
+    });
+
+    function formatTime(minutes) {
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      return `${h > 0 ? h + 'h ' : ''}${m}min`;
+    }
+
+    function showMotivation() {
+      const messages = [
+        "You're crushing it! 💪",
+        "Keep going, superstar! ✨",
+        "Every task done = one step closer 💼",
+        "Legendary progress 🐾",
+      ];
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+      document.getElementById("motivation").innerText = msg;
+    }
+
+    async function loadTasks() {
+  const sortMethod = document.getElementById("sort-select")?.value || "auto";
+
+  let url;
+  if (sortMethod === "estimated_time" || sortMethod === "priority") {
+    url = `http://localhost:3000/tasks?sort=${sortMethod}`;
+  } else {
+    url = `http://localhost:3000/tasks/sorted`;
+  }
+
+  let tasks = [];
+  try {
+    const res = await fetch(url);
+    tasks = await res.json();
+  } catch {
+    document.getElementById("response").innerText = "⚠️ Failed to load tasks.";
+    return;
+  }
+
+  const taskList = document.getElementById("task-list");
+  const doneList = document.getElementById("done-list");
+  taskList.innerHTML = "";
+  doneList.innerHTML = "";
+
+  tasks.forEach(task => {
+    const li = document.createElement("li");
+    const taskInfo = document.createElement("div");
+    taskInfo.className = "task-info";
+    taskInfo.innerHTML = `🕐 <strong>${task.name}</strong> &nbsp; ⏳ ${formatTime(task.estimated_time)} &nbsp; 🔺 ${task.priority}`;
+
+    const btnDelete = document.createElement("button");
+    btnDelete.className = "btn-delete";
+    btnDelete.innerText = "🗑️";
+    btnDelete.onclick = async () => {
+      await fetch(`http://localhost:3000/tasks/${task.id}`, { method: "DELETE" });
+      loadTasks();
+    };
+
+    const btnDone = document.createElement("button");
+    btnDone.className = "btn-done";
+    btnDone.innerText = "✅";
+    btnDone.onclick = async () => {
+      await fetch(`http://localhost:3000/tasks/${task.id}/done`, { method: "PUT" });
+      loadTasks();
+      showMotivation();
+    };
+
+    const buttonGroup = document.createElement("div");
+    buttonGroup.className = "task-buttons";
+    if (task.status !== "Done") buttonGroup.appendChild(btnDone);
+    buttonGroup.appendChild(btnDelete);
+
+    li.appendChild(taskInfo);
+    li.appendChild(buttonGroup);
+
+    if (task.status === "Done") {
+      doneList.appendChild(li);
+    } else {
+      taskList.appendChild(li);
+    }
+  });
+}
+
+
+    loadTasks();
+  </script>
+</body>
+</html>
